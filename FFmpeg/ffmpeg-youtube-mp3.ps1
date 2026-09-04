@@ -1,4 +1,7 @@
-﻿# Replace with your YouTube playlist URL
+﻿# Update app
+yt-dlp -U
+
+# Replace with your YouTube playlist URL
 $playlistUrl = Read-Host "Enter the playlist URL"
 
 # Directory to save the downloaded videos
@@ -14,8 +17,6 @@ New-Item -ItemType Directory -Path $output_dir | Out-Null
 
 # Video
 yt-dlp -f "bv*+ba/b" -o "$output_dir/%(title)s.%(ext)s" "$playlistUrl"
-
-
 
 # Convert the downloaded videos to MP3 and clean up
 Get-ChildItem "$output_dir\*.webm" | ForEach-Object {
