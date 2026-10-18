@@ -1,7 +1,6 @@
 ﻿# Update app
 yt-dlp -U
 
-
 # Replace with your YouTube playlist URL
 $playlistUrl = Read-Host "Enter the playlist URL"
 
@@ -19,36 +18,19 @@ New-Item -ItemType Directory -Path $output_dir | Out-Null
 # Video
 yt-dlp -f "bv*+ba/b" -o "$output_dir/%(title)s.%(ext)s" "$playlistUrl"
 
-<#
-# Convert the downloaded videos to MP3 and clean up
-Get-ChildItem "$output_dir\*.webm" | ForEach-Object {
+# Convert downloaded WEBM videos to MP4 and clean up
+Get-ChildItem "$output_dir\*.*" | ForEach-Object {
     if (Test-Path $_.FullName) {
         $filename = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
         $cleaned_filename = $filename -replace '[^a-zA-Z0-9.]', ''
-        ffmpeg.exe -i $_.FullName -q:a 0 "$output_dir\$cleaned_filename.mp3"
-        Remove-Item $_.FullName -Force
-    }
-}
+        $output_file = "$output_dir\$cleaned_filename.mp4"
 
-# Convert the downloaded videos to MP3 and clean up
-Get-ChildItem "$output_dir\*.mkv" | ForEach-Object {
-    if (Test-Path $_.FullName) {
-        $filename = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
-        $cleaned_filename = $filename -replace '[^a-zA-Z0-9.]', ''
-        ffmpeg.exe -i $_.FullName -q:a 0 "$output_dir\$cleaned_filename.mp3"
-        Remove-Item $_.FullName -Force
-    }
-}
+        ffmpeg.exe -i $_.FullName -c:v libx264 -c:a aac -movflags +faststart $output_file
 
-# Convert the downloaded videos to MP3 and clean up
-Get-ChildItem "$output_dir\*.mp4" | ForEach-Object {
-    if (Test-Path $_.FullName) {
-        $filename = [System.IO.Path]::GetFileNameWithoutExtension($_.Name)
-        $cleaned_filename = $filename -replace '[^a-zA-Z0-9.]', ''
-        ffmpeg.exe -i $_.FullName -q:a 0 "$output_dir\$cleaned_filename.mp3"
-        Remove-Item $_.FullName -Force
+        if ($LASTEXITCODE -eq 0) {
+            Remove-Item $_.FullName -Force
+        }
     }
 }
 
 Write-Host "Playlist downloaded, converted to MP3, and original files removed."
-#>
